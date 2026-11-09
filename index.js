@@ -41,11 +41,12 @@ async function getCurrentUser() {
 }
 app.get("/", async (req, res) => {
   const countries = await checkVisisted();
+  const currentUser = await getCurrentUser();
   res.render("index.ejs", {
     countries: countries,
     total: countries.length,
     users: users,
-    color: "teal",
+    color: currentUser.color,
   });
 });
 app.post("/add", async (req, res) => {
