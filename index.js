@@ -27,11 +27,17 @@ let users = [
 ];
 
 async function checkVisisted() {
-  const result = await db.query("SELECT country_code FROM visited_countries ON JOIN users ON users.id = user_id WHERE user_id = $1; ",
-    [currentUserId]
+const result = await db.query(
+  `SELECT visited_countries.country_code
+   FROM visited_countries
+   INNER JOIN users
+   ON users.id = visited_countries.user_id
+   WHERE visited_countries.user_id = $1`,
+  [currentUserId]
   );
+  
   let countries = [];
-  result.rows.forEach((country) => {
+    result.rows.forEach((country) => {
     countries.push(country.country_code);
   });
   return countries;
@@ -64,10 +70,10 @@ app.post("/add", async (req, res) => {
     const data = result.rows[0];
     const countryCode = data.country_code;
     try {
-      await db.query(
-        "INSERT INTO visited_countries (country_code) VALUES ($1)",
-        [countryCode]
-      );
+     await db.query(
+      "INSERT INTO visited_countries (country_code, user_id) VALUES ($1, $2)",
+      [countryCode, currentUserId]
+        );
       res.redirect("/");
     } catch (err) {
       console.log(err);
