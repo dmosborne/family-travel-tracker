@@ -6,13 +6,15 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 const db = new pg.Client({
-  user: "postgres",
-  host: "localhost",
-  database: "world",
-  password: "123456",
-  port: 5432,
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === "production"
+    ? { rejectUnauthorized: false }
+    : false,
 });
-db.connect();
+
+db.connect()
+  .then(() => console.log("Connected to PostgreSQL"))
+  .catch((err) => console.error("Database connection error:", err));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
